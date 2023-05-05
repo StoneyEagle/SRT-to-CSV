@@ -34,7 +34,7 @@ function parseSubtitle(file, baseArray = ['date, index, start, end, text']) {
 
         const realDate = new Date(date.getTime() + convertToSeconds(m?.groups?.start) * 1000);
     
-        baseArray.push(`"${date.toUTCString()}", "${realDate.toUTCString()}" ${m?.groups?.index}, "${m?.groups?.start.replace(',', '.')}", "${m?.groups?.end.replace(',', '.')}", "${m?.groups?.text.replace(/\n/g, '\\n')}"`);
+        baseArray.push(`${date.toISOString()},${realDate.toISOString()},${m?.groups?.index},${m?.groups?.start.replace(',', '.')},${m?.groups?.end.replace(',', '.')},"${m?.groups?.text.replace(/\n/g, '\\n')}"`);
     }
 
     if (!existsSync(path.join(__dirname, 'output'))) {
@@ -49,7 +49,7 @@ function parseSubtitle(file, baseArray = ['date, index, start, end, text']) {
 const files = readdirSync(path.join(__dirname, 'input'))
     .map((file) => path.join(__dirname, 'input', file));
 
-const total = ['date, realDate, index, start, end, text']
+const total = ['date,realDate,index,start,end,text']
 files.forEach((file) => {
     parseSubtitle(file, total);
 });
