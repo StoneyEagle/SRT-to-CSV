@@ -4,15 +4,11 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import path from 'path';
 
-function parseSubtitle(file, baseArray = ['date, start, end, message']) {
-    const regex = /(?<index>[0-9]+)\n+(?<start>[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}) --> (?<end>[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3})\n(?<message>.*?)\n\n/gms;
+function parseSubtitle(file, baseArray = ['date, index, start, end, text']) {
+    const regex = /(?<index>[0-9]+)\n+(?<start>[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}) --> (?<end>[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3})\n(?<text>.*?)\n\n/gms;
 
-    const date = new Date(
-        /\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}/
-            .exec(file)[0]
-            .split('_')[0]
-    );
-
+    const date = new Date(.../(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})/.exec(file).slice(1))
+    
     const str = readFileSync(file, 'utf8')
         .replace(/\r/g, '');
 
@@ -23,7 +19,7 @@ function parseSubtitle(file, baseArray = ['date, start, end, message']) {
             regex.lastIndex++;
         }
     
-        baseArray.push(`${date}, ${m?.groups?.start.replace(',', '.')}, ${m?.groups?.end.replace(',', '.')}, ${m?.groups?.message.replace(/\n/g, '\\n')}`);
+        baseArray.push(`${date.toUTCString()}, ${m?.groups?.index}, ${m?.groups?.start.replace(',', '.')}, ${m?.groups?.end.replace(',', '.')}, ${m?.groups?.text.replace(/\n/g, '\\n')}`);
     }
 
     if (!existsSync(path.join(__dirname, 'output'))) {
@@ -38,7 +34,7 @@ function parseSubtitle(file, baseArray = ['date, start, end, message']) {
 const files = readdirSync(path.join(__dirname, 'input'))
     .map((file) => path.join(__dirname, 'input', file));
 
-const total = ['date, start, end, message']
+const total = ['date, index, start, end, text']
 files.forEach((file) => {
     parseSubtitle(file, total);
 });
